@@ -25,7 +25,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         static let PaddleColor = UIColor.greenColor()
         
         //brick properties
-        static let BrickColumns = 5
+        static let BrickColumns = 4
         static let BrickRows = 4
         static let BrickTotalWidth: CGFloat = 1.0
         static let BrickTotalHeight: CGFloat = 0.3
@@ -122,6 +122,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         autoStartTimer = nil
         for ball in breakout.balls {
             breakout.removeBall(ball)
+            print("removed ball")
         }
         
 //        if NSClassFromString("UIAlertController") != nil {
@@ -310,7 +311,9 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
                     })
             })
             bricks.removeValueForKey(index)
+            print("\(self.bricks.count)")
             if self.bricks.count == 0 {
+                print("\(self.bricks.count)")
                 self.levelFinished()
             }
         }
