@@ -27,7 +27,6 @@ class BreakoutBehavior: UIDynamicBehavior {
         super.init()
         addChildBehavior(collider)
         addChildBehavior(ballBehavior)
-        addChildBehavior(gravity)
     }
 
     lazy var ballBehavior: UIDynamicItemBehavior = {
@@ -51,12 +50,14 @@ class BreakoutBehavior: UIDynamicBehavior {
         ball.removeFromSuperview()
     }
 
+    // check if there is a ball, check items in the collider behavior and map it to an array
     var balls:[UIView] {
         get {
             return collider.items.filter{$0 is UIView}.map{$0 as! UIView}
         }
     }
     
+    // move the ball at a random angle, remove behavior aspa
     func moveBall(ball: UIView) {
         let pushBehavior = UIPushBehavior(items: [ball], mode: .Instantaneous)
         pushBehavior.magnitude = 1.0
@@ -70,6 +71,7 @@ class BreakoutBehavior: UIDynamicBehavior {
         addChildBehavior(pushBehavior)
     }
     
+    // remove previous barrier, in case of rotation
     func addBarrier(path: UIBezierPath, named name: NSCopying) {
         collider.removeBoundaryWithIdentifier(name)
         collider.addBoundaryWithIdentifier(name, forPath: path)
@@ -83,15 +85,5 @@ class BreakoutBehavior: UIDynamicBehavior {
     func removeBarrier(name: NSCopying) {
         collider.removeBoundaryWithIdentifier(name)
     }
-    
-    func addBrick(brick: UIView) {
-        gravity.addItem(brick)
-    }
-    
-    func removeBrick(brick: UIView) {
-        gravity.removeItem(brick)
-    }
-    
-    let gravity = UIGravityBehavior()
     
 }

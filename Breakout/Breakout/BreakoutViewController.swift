@@ -29,20 +29,13 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         animator.addBehavior(breakout)
         gameView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: "moveBall:"))
         
-        
-        //use attachments?
         gameView.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: "panPaddle:"))
-        let swipeLeft = UISwipeGestureRecognizer(target: self, action: "swipePaddleLeft:")
-        swipeLeft.direction = .Left
-        gameView.addGestureRecognizer(swipeLeft)
-        let swipeRight = UISwipeGestureRecognizer(target: self, action: "swipePaddleRight:")
-        swipeRight.direction = .Right
-        gameView.addGestureRecognizer(swipeRight)
         
         start()
 
     }
     
+    // if there is not ball, initialize one and move it
     func moveBall(gesture: UITapGestureRecognizer) {
         if gesture.state == .Ended {
             if breakout.balls.count == 0 {
@@ -65,8 +58,8 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         static let PaddleCornerRadius: CGFloat = 5.0
         static let PaddleColor = UIColor.redColor()
         
-        static let BrickColumns = 5
-        static let BrickRows = 4
+        static let BrickColumns = 2
+        static let BrickRows = 2
         static let BrickTotalWidth: CGFloat = 1.0
         static let BrickTotalHeight: CGFloat = 0.3
         static let BrickTopSpacing: CGFloat = 0.05
@@ -79,6 +72,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     
     //MARK: BALL
     
+    // balls is a view with round corners
     func makeBall() -> UIView {
         let ball = UIView(frame: CGRect(origin: CGPoint.zero, size: CGSize(width: Constants.BallDiameter, height: Constants.BallDiameter)))
         ball.backgroundColor = Constants.BallColor
@@ -90,6 +84,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         return ball
     }
     
+    // init ball in the center of the paddle
     func initBall(ball: UIView) {
         var center = paddle.center
         center.y -= Constants.PaddleLength.height / 2 + Constants.BallDiameter
@@ -99,6 +94,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
+        // barrier for top, left, and right of screen
         var rect = gameView.bounds
         rect.size.height *= 2
         breakout.addBarrier(UIBezierPath(rect: rect), named: Constants.BorderBarrier)
@@ -107,6 +103,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         
         resetPaddle()
         
+        // if rotated, place balls back on screen
         for ball in breakout.balls {
             if !CGRectContainsRect(gameView.bounds, ball.frame) {
                 initBall(ball)
@@ -114,6 +111,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
             }
         }
         
+        // if paddles is outside of the view, reposition it
         if !CGRectContainsRect(gameView.bounds, paddle.frame) {
             resetPaddle()
         }
@@ -136,6 +134,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         return paddle
     }()
     
+    // paddles in the middle of bottom of screen
     private func resetPaddle() {
         if !CGRectContainsRect(gameView.bounds, paddle.frame) {
             paddle.center = CGPoint(x: gameView.bounds.midX, y: gameView.bounds.maxY - paddle.bounds.height)
@@ -155,22 +154,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         }
     }
     
-    func swipePaddleLeft(gesture: UIPanGestureRecognizer) {
-        switch gesture.state {
-        case .Ended:
-            initPaddle(CGPoint(x: -gameView.bounds.maxX, y: 0.0))
-        default: break
-        }
-    }
-    
-    func swipePaddleRight(gesture: UIPanGestureRecognizer) {
-        switch gesture.state {
-        case .Ended:
-            initPaddle(CGPoint(x: gameView.bounds.maxX, y: 0.0))
-        default: break
-        }
-    }
-    
+    // change origin of the paddle, but keep it within limits
     func initPaddle(translation: CGPoint) {
         var origin = paddle.frame.origin
         origin.x = max(min(origin.x + translation.x, gameView.bounds.maxX - Constants.PaddleLength.width), 0.0)
@@ -178,6 +162,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         addPaddleBarrier()
     }
     
+    // the barrier envelopes the dimensions of paddle
     func addPaddleBarrier() {
         breakout.addBarrier(UIBezierPath(roundedRect: paddle.frame, cornerRadius: Constants.PaddleCornerRadius), named: Constants.PaddleBarrier)
     }
@@ -191,6 +176,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         var view: UIView
     }
     
+    // reintialize if game starts or rotated
     func initBricks() {
         for (index, brick) in bricks {
             brick.view.frame.origin.x = brick.relativeFrame.origin.x * gameView.bounds.width
@@ -235,6 +221,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         }
     }
     
+    // to remove a brick, get rid of the barrier
     private func deleteBrick(index: Int) {
         breakout.removeBarrier(index)
         if let brick = bricks[index] {
@@ -245,7 +232,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
                     UIView.animateWithDuration(1.0, animations: {
                         brick.view.alpha = 0.0
                         }, completion: { (success) -> Void in
-                            self.breakout.removeBrick(brick.view)
+//                            self.breakout.removeBrick(brick.view)
                             brick.view.removeFromSuperview()
                             if self.bricks.count == 0 {
                                 self.end()
